@@ -8,7 +8,13 @@ import Vuex from 'vuex'
 import App from './App'
 import router from './router'
 
+
+import VueResource from "vue-resource"
+Vue.use(VueResource);
+
+
 Vue.config.productionTip = false
+
 Vue.use(Vuex);
 //Vue.use(VueAxios, axios);
 //		Setando regras do login com token JWT
