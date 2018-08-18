@@ -27,7 +27,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 export default {
   name: 'login',
   data () {
@@ -40,17 +39,14 @@ export default {
   },
   methods: {
   	logar: function() {
-  		axios.post('http://localhost/api/token/jwt/', this.user)
+  		this.axios.post('http://localhost/api/token/jwt/', this.user)
 		.then(response => {
-			let acessToken = response.data.access
-			let refreshToken = response.data.refresh
-			localStorage.setItem('token_access', acessToken)
-			localStorage.setItem('token_refresh', refreshToken)
-			this.$emit("authenticated", true);
-			this.$router.push('/');
+			if(response){
+				this.$store.dispatch('obtainToken', this.user);
+				this.$router.push('/');
+			}
   		})
   		.catch(response => {
-  			console.log('ERROR');
   			console.log(response);
   		})
   	}

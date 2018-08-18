@@ -57,8 +57,8 @@ export default {
 	    this.getBooks('http://localhost/books')
 
 	  	if(!this.authenticated){
-	  		$('excluir').prop('disabled', true);
-	  		$('editar').prop('disabled', true);
+	  		//$('excluir').prop('disabled', true);
+	  		//$('editar').prop('disabled', true);
 	  	}
 	},
 	methods: {
