@@ -2,12 +2,15 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import jwt_decode from 'jwt-decode'
+import axios from 'axios'
+//import VueAxios from 'vue-axios'
 import Vuex from 'vuex'
 import App from './App'
 import router from './router'
 
 Vue.config.productionTip = false
 Vue.use(Vuex);
+//Vue.use(VueAxios, axios);
 //		Setando regras do login com token JWT
 const store = new Vuex.Store({
   state: {
@@ -20,37 +23,36 @@ const store = new Vuex.Store({
   },
   mutations: {
     updateToken(state, newToken) {
-      localStorage.setItem('token', newToken);
+      localStorage.setItem('token_access', newToken);
       state.jwt = newToken;
     },
     removeToken(state) {
-      localStorage.removeItem('token');
+      localStorage.removeItem('token_access');
+      localStorage.removeItem('token_refresh');
       state.jwt = null;
       state.jwt_refresh = null;
     }
   },
   actions: {
-    obtainToken(user) {
-      const payload = user;
-
-      http.post(this.state.endpoints.obtainJWT, payload)
+    obtainToken(context, payload) {
+      axios.post(this.state.endpoints.obtainJWT, payload)
         .then(response => {
-          let acessToken = response.data.access
+          let accessToken = response.data.access
           let refreshToken = response.data.refresh
-          localStorage.setItem('token_access', acessToken)
+          localStorage.setItem('token_access', accessToken)
           localStorage.setItem('token_refresh', refreshToken)
-          this.commit('updateToken', response.data.token);
+          this.commit('updateToken', accessToken);
         })
         .catch(error => {
           console.log(error);
         })
     },
-    refreshToken() {
+    refreshToken(context) {
       const payload = {
         token: this.state.jwt
       }
 
-      http.post(this.state.endpoints.refreshJWT, payload)
+      axios.post(this.state.endpoints.refreshJWT, payload)
         .then((response) => {
           this.commit('updateToken', response.data.token)
         })
@@ -58,23 +60,22 @@ const store = new Vuex.Store({
           console.log(error)
         })
     },
-    inspectToken() {
+    inspectToken(context) {
       const token = this.state.jwt;
+      let isAuthenticated = false
       if (token) {
         const decoded = jwt_decode(token);
-        const exp = decoded.exp
+        const exp = decoded.exp;
         // SE está expirando em 30 min (1800 segs) E não está atingindo sua vida útil (24hrs - 30 min)
         // => REFRESH
         // SE está expirando em 30 min E está atingindo sua vida útil 
         // => NÃO ATUALIZAR 
-        if (exp - (Date.now()/1000) < 1800) {
+        if (exp - (Date.now() / 1000) < 1800) {
           this.dispatch('refreshToken')
-          return true;
-        } else if (!(exp - (Date.now() / 1000) < 1800)) {
-          return false;
         }
       } else {
         console.log('TOKEN NOT OK');
+        this.commit('removeToken');
       }
     }
   }
@@ -86,6 +87,6 @@ new Vue({
   el: '#app',
   router,
   store: store,
+  axios: axios,
   render: h => h(App)
 });
-
