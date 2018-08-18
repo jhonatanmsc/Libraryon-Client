@@ -45,6 +45,7 @@ const store = new Vuex.Store({
         .then(response => {
           let accessToken = response.data.access
           let refreshToken = response.data.refresh
+          this.state.jwt = accessToken
           localStorage.setItem('token_access', accessToken)
           localStorage.setItem('token_refresh', refreshToken)
           this.commit('updateToken', accessToken);
@@ -55,12 +56,12 @@ const store = new Vuex.Store({
     },
     refreshToken(context) {
       const payload = {
-        token: this.state.jwt
+        refresh: this.state.jwt_refresh
       }
 
       axios.post(this.state.endpoints.refreshJWT, payload)
         .then((response) => {
-          this.commit('updateToken', response.data.token)
+          this.commit('updateToken', response.data.access)
         })
         .catch((error) => {
           console.log(error)
@@ -76,7 +77,8 @@ const store = new Vuex.Store({
         // => REFRESH
         // SE está expirando em 30 min E está atingindo sua vida útil 
         // => NÃO ATUALIZAR 
-        if (exp - (Date.now() / 1000) < 1800) {
+        console.log(exp - (Date.now() / 1000))
+        if (exp - (Date.now() / 1000) > 0) {
           this.dispatch('refreshToken')
         }
       } else {

@@ -6,10 +6,10 @@
 
             <p class="body"><b>Descrição:</b> {{ book.description }}</p>
             <div>
-                <button class="excluir red waves-effect waves-light btn" @click="deleteBook(book)">
+                <button class="excluir red waves-effect waves-light btn" :disabled="disabled" @click="deleteBook(book)">
                     <i class="material-icons left">close</i>Excluir
                 </button>
-                <button class="editar waves-effect waves-light btn" @click="editBook(book)">
+                <button class="editar waves-effect waves-light btn" :disabled="disabled" @click="editBook(book)">
                     <i class="material-icons left">cloud</i>Editar
                 </button>
             </div>
@@ -45,6 +45,7 @@ export default {
   name: 'home',
   data () {
     return {
+      disabled: true,
       books: [],
         pagination: {
             count: 0,
@@ -54,11 +55,11 @@ export default {
     }
   },
   mounted() {
-	    this.getBooks('http://localhost/books')
-
-	  	if(!this.authenticated){
-	  		//$('excluir').prop('disabled', true);
-	  		//$('editar').prop('disabled', true);
+	    this.getBooks('http://localhost/books');
+	    this.$store.dispatch('inspectToken');
+        console.log('mounted')
+	  	if(localStorage.getItem('token_access')){
+	  		this.disabled = false;
 	  	}
 	},
 	methods: {

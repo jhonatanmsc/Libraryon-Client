@@ -5,7 +5,7 @@
             <div class="container">
                 <a href="/" class="brand-logo">Libraryon</a>
                 <ul  class="right hide-on-med-and-down">
-                    <li v-if="authenticated"><a @click="logout()" href="/">
+                    <li v-if="authenticated"><a @click="logout()" href="#">
                         <i class="material-icons left">sentiment_very_satisfied</i> Logout</a></li>
                     <li v-else><a href="/login" >
                       <i class="material-icons left">sentiment_very_satisfied</i> Login</a></li>
