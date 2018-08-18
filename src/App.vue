@@ -3,7 +3,7 @@
     <nav>
         <div class="nav-wrapper green">
             <div class="container">
-                <a href="/" class="brand-logo">Libraryon</a>
+                <router-link to="home">Libraryon</router-link>
                 <ul  class="right hide-on-med-and-down">
                     <li v-if="authenticated"><a @click="logout()" href="#">
                         <i class="material-icons left">sentiment_very_satisfied</i> Logout</a></li>

@@ -1,5 +1,5 @@
 <template>
-<div id='register'>
+<div id='register' class="container">
         <form class="col s12">
             <h4>Novo Usuário</h4>
             <div class="row">
@@ -72,15 +72,14 @@ export default {
     },
 methods: {
     newLector: function() {
-        this.axios.post('http://localhost/lectors/create/', this.new_user)
+        this.$http.post('http://localhost/lectors/create/', this.new_user)
             .then(response => {
                 this.response = response
                 this.errors = ''
             })
-            .catch(erros => {
-                this.errors = errors
-                this.response = ''
-            })
+            .catch(response => {
+  			console.log(response);
+  		})
 }
 }
 }
