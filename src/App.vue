@@ -27,13 +27,15 @@ export default {
   	}
   },
   mounted(){
-  	if(this.$store.dispatch('inspectToken')){
+  	this.$store.dispatch('inspectToken');
+  	if(localStorage.getItem('token_access')){
   		this.authenticated = true
   	}
   },
   methods:{
   	logout: function(){
-  		this.$store.dispatch('removeToken');
+  		console.log('ITS WORK')
+  		this.$store.commit('removeToken');
   	}
   }
 }

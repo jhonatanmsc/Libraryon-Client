@@ -6,13 +6,13 @@
 
             <div class="row">
                 <div class="input-field col s6 pull-s3 push-s3">
-                    <input id="email" type="text" class="validate" v-model="user.username">
+                    <input id="email" type="text" class="validate" v-model="username">
                     <label for="email">Email</label>
                 </div>
             </div>
             <div class="row">
                 <div class="input-field col s6 pull-s3 push-s3">
-                    <input id="senha" type="password" class="validate" v-model="user.password">
+                    <input id="senha" type="password" class="validate" v-model="password">
                     <label for="senha">Senha</label>
                 </div>
             </div>
@@ -31,27 +31,17 @@ export default {
   name: 'login',
   data () {
     return {
-      user: {
-        'username': '',
-        'password': '',
-      }
+        username: '',
+        password: '',
     }
   },
   methods: {
   	logar: function() {
-  		this.axios.post('http://localhost/api/token/jwt/', this.user)
-		.then(response => {
-			if(response){
-				this.$store.dispatch('obtainToken', this.user);
-				this.$router.push('/');
-			}
-  		})
-  		.catch(response => {
-  			console.log(response);
-  		})
+		this.$store.dispatch('obtainToken', {username: this.username, password: this.password});
+		this.$router.push('/');
+  		}
   	}
   }
-}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
