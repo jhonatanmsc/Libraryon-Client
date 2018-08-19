@@ -11,7 +11,14 @@
 	            <h4><b class="red-text text-darken-4">{{ book.title }}</b></h4>
 
 	            <img :src="book.thumb" class="book-img"/>
-	            <div>
+
+				<div v-if="!forAutor">
+	                <button data-target="modal1" class="excluir red waves-effect waves-light btn modal-trigger" :disabled="disabled" @click="deleteModalActivate(book)">
+	                    <i class="material-icons left">close</i>Votar
+	                </button>
+	            </div>
+
+	            <div v-if="forAutor">
 	                <button data-target="modal1" class="excluir red waves-effect waves-light btn modal-trigger" :disabled="disabled" @click="deleteModalActivate(book)">
 	                    <i class="material-icons left">close</i>Excluir
 	                </button>
@@ -55,17 +62,6 @@
                 <label for="price">preço</label>
 				
               </div><br>
-        
-
-			    <div class="m-input file-field input-field">
-			      <div class="btn">
-			        <span>File</span>
-			        <input type="file">
-			      </div>
-			      <div class="file-path-wrapper">
-			        <input v-model="book.thumb" class="file-path validate" type="text">
-			      </div>
-			    </div><br>
 
 			 <div class="center">
 				<a @click="activeEdit = false" class="waves-effect blue-grey lighten-5 black-text btn-large">CANCELAR</a>
@@ -93,6 +89,7 @@ export default {
       	contentEditModal: '',
       	activeDelete: false,
       	activeEdit: false,
+      	forAutor: false,
       	book: '',
       	books: [],
         	pagination: {
@@ -104,6 +101,9 @@ export default {
   	},
  	 mounted(){
   		this.getBooks('http://localhost/books');
+  		if(localStorage.getItem('type') == 'autor'){
+  			this.forAutor = true;
+  		}
   	},
   	updated() {
     	this.$store.dispatch('inspectToken');
@@ -146,15 +146,14 @@ export default {
 		    }
 	    },
 
-	    editBook: function (book) {
-	        this.$http.put(book.url, book)
+	    editBook: function () {
+	        this.$http.put(this.book.url, this.book)
 	            .then(response => {
 	            	console.log('BOOK EDITADO')
 	            })
 	            .catch(e => {
 	                console.log(e)
 	            })
-	        book.editing = false
 	    },
 
 	    getBooks: function (url) {

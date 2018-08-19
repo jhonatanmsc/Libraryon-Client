@@ -5,6 +5,7 @@
             <div class="container">
                 <router-link :to="{name: 'home'}">Libraryon</router-link>
                 <ul  class="right hide-on-med-and-down">
+                    <li>
                     <li v-if="authenticated">
                       <a @click="logout()" href="/">
                         <i class="material-icons left">sentiment_very_satisfied</i> Logout

@@ -39,6 +39,10 @@ const store = new Vuex.Store({
     }
   },
   actions: {
+    setUser(context, type){
+      console.log(type.type);
+      localStorage.setItem('type', type.type)
+    },
     obtainToken(context, payload) {
       axios.post(this.state.endpoints.obtainJWT, payload)
         .then(response => {
