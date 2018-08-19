@@ -3,17 +3,15 @@
 import Vue from 'vue'
 import jwt_decode from 'jwt-decode'
 import axios from 'axios'
-import VueMd from 'vue-material'
-import 'vue-material/dist/vue-material.min.css'
 import Vuex from 'vuex'
+import M from 'materialize-css'
 import App from './App'
 import router from './router'
 
 
 import VueResource from "vue-resource"
 Vue.use(VueResource);
-Vue.use(VueMd);
-
+Vue.use(M);
 Vue.config.productionTip = false
 
 Vue.use(Vuex);
@@ -78,8 +76,8 @@ const store = new Vuex.Store({
         // => REFRESH
         // SE está expirando em 30 min E está atingindo sua vida útil 
         // => NÃO ATUALIZAR 
-        console.log(exp - (Date.now() / 1000))
-        if (exp - (Date.now() / 1000) == 0) {
+        console.log((Date.now() / 1000) - exp)
+        if ((Date.now() / 1000) - exp == 0) {
           this.dispatch('refreshToken')
         }
       } else {

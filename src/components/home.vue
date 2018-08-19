@@ -1,18 +1,18 @@
 <template>
   <div class="home">
   	<div class="m-content row valign-wrapper">
-  		<button class="m-btn waves-effect waves-light btn-large col m2" @click="getBooks(pagination.previous)"
+  		<button v-if="!active" class="m-btn waves-effect waves-light btn-large col m2" @click="getBooks(pagination.previous)"
                 :disabled="!pagination.previous">
             <i class="material-icons left">chevron_left</i>
         </button>
 
         <div class="row col m8">
-	        <div v-for="book in books" class="col m4 s12 center" v-if="!book.editing">
+	        <div v-for="book in books" class="col m4 s12 center" v-if="!active">
 	            <h4><b class="red-text text-darken-4">{{ book.title }}</b></h4>
 
 	            <img :src="book.thumb" class="book-img"/>
 	            <div>
-	                <button class="excluir red waves-effect waves-light btn" :disabled="disabled" @click="deleteModalActivate(book)">
+	                <button data-target="modal1" class="excluir red waves-effect waves-light btn modal-trigger" :disabled="disabled" @click="deleteModalActivate(book)">
 	                    <i class="material-icons left">close</i>Excluir
 	                </button>
 	                <button class="editar waves-effect waves-light btn" :disabled="disabled" @click="editBook(book)">
@@ -24,18 +24,17 @@
 	        <div v-else>
 	            
 	        </div>
-    		<div>
-			    <md-dialog-confirm id="delete-modal"
-			      :md-active.sync="active"
-			      :md-content="contentDeleteModal"
-			      md-confirm-text="Deletar"
-			      md-cancel-text="Cancelar"
-			      @md-cancel="onCancel"
-			      @md-confirm="onConfirm" />
-    		</div>
+    		<!-- Modal Structure -->
+    		<div v-if="active" style="height: 100vh; padding-top: 100px;">
+			 <h3 > Você tem certeza que quer deletar o item?</h3>
+			 <div class="center">
+				<a @click="active = false" class="waves-effect blue-grey lighten-5 black-text btn-large">CANCELAR</a>
+				<a @click="deleteBook()" class="waves-effect red darken-4 btn-large" style="margin-left: 20px;">DELETAR</a>
+			 </div>
+			</div>
 		</div>
 
-		<button class="m-btn waves-effect waves-light btn-large col m2" @click="getBooks(pagination.next)" :disabled="!pagination.next">
+		<button v-if="!active" class="m-btn waves-effect waves-light btn-large col m2" @click="getBooks(pagination.next)" :disabled="!pagination.next">
             <i class="material-icons left">chevron_right</i>
         </button>
 
@@ -81,12 +80,8 @@ export default {
 
 		deleteModalActivate: function(book) {
 			this.bookUrl = book;
-			this.contentDeleteModal = `
-				<b style="font-size: 1.7em;"> Você tem certeza que quer deletar o item
-					<label style="font-size: 1em;" class="red-text text-darken-4 center">`+
-						book.title+
-					`</label> ?
-				</b>`
+			this.contentDeleteModal = ''
+				
 			this.active = true;
 		},
 
