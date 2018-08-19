@@ -1,12 +1,12 @@
 <template>
   <div class="home">
-    <div class="container row" v-for="book in books">
-        <div class="col s4" v-if="!book.editing">
+    <div class="container row">
+        <div v-for="book in books" class="col m4 s12" v-if="!book.editing">
             <h4><b>Título:</b> {{ book.title }}</h4>
 
             <p class="body"><b>Descrição:</b> {{ book.description }}</p>
             <div>
-                <button class="excluir red waves-effect waves-light btn" :disabled="disabled" @click="deleteBook(book)">
+                <button class="excluir red waves-effect waves-light btn" :disabled="disabled" @click="modalActivate(book)">
                     <i class="material-icons left">close</i>Excluir
                 </button>
                 <button class="editar waves-effect waves-light btn" :disabled="disabled" @click="editBook(book)">
@@ -25,10 +25,20 @@
                 <button @click="cancelEditing(book)">Cancelar</button>
             </div>
         </div>
-
+    <div>
+    <div>
+    <md-dialog-confirm id="gg"
+      :md-active.sync="active"
+      md-title='Você deseja realmente deletar o livro?'
+      :md-content="bookName"
+      md-confirm-text="Deletar"
+      md-cancel-text="Cancelar"
+      @md-cancel="onCancel"
+      @md-confirm="onConfirm" />
     </div>
-
-    <div class="pagination">
+</div>
+</div>
+	<div class="pagination center">
         <button class="waves-effect waves-light btn" @click="getBooks(pagination.previous)"
                 :disabled="!pagination.previous">
             <i class="material-icons left">chevron_left</i>Previous
@@ -37,7 +47,7 @@
             <i class="material-icons left">chevron_right</i>Next
         </button>
     </div>
-  </div> 
+</div>
 </template>
 
 <script>
@@ -46,6 +56,8 @@ export default {
   data () {
     return {
       disabled: true,
+      bookName: '',
+      active: false,
       books: [],
         pagination: {
             count: 0,
@@ -54,30 +66,46 @@ export default {
         }
     }
   },
-  mounted() {
-	    this.getBooks('http://localhost/books');
+  mounted(){
+  	this.getBooks('http://localhost/books');
+    $('.modal').modal();
+  },
+  updated() {
 	    this.$store.dispatch('inspectToken');
-        console.log('mounted')
 	  	if(localStorage.getItem('token_access')){
 	  		this.disabled = false;
 	  	}
 	},
 	methods: {
-	    deleteBook: function (book) {
-	        var index = this.books.indexOf(book)
-	        this.books.splice(index)
-	    },
 
-	    deleteBook: function (book) {
-	        var index = this.books.indexOf(book)
+		onConfirm () {
+        this.value = 'Agreed'
+      },
+      onCancel () {
+        this.value = 'Disagreed'
+      },
 
-	        this.$http.delete('http://localhost/books/' + book.id + '/')
-	            .then(response => {
-	                this.books.splice(index, 1)
-	            })
-	            .catch(e => {
-	                console.log(e)
-	            })
+		modalActivate: function(book) {
+			this.bookUrl = book;
+			this.bookName = '<h2 class="red-text text-darken-4 center">'+book.title+'</h2>';
+			this.active = true;
+		},
+
+	    deleteBook: function () {
+	    	let book = this.bookUrl;
+	    	if(book){
+		        var index = this.books.indexOf(book)
+		        console.log(book.url)
+
+		        this.$http.delete(book.url)
+		            .then(response => {
+		            	console.log('BOOK DELETADO')
+		                this.books.splice(index, 1)
+		            })
+		            .catch(e => {
+		                console.log(e)
+		            })
+		    }
 	    },
 	    editBook: function (book) {
 	        book.editing = true
@@ -88,9 +116,9 @@ export default {
 	    },
 
 	    confirmUpdate: function (book) {
-	        this.$http.put('http://localhost/books/' + book.id, book)
+	        this.$http.put(book.url, book)
 	            .then(response => {
-
+	            	console.log('BOOK EDITADO')
 	            })
 	            .catch(e => {
 	                console.log(e)
@@ -111,8 +139,8 @@ export default {
 	                    count: response.data.count,
 	                    next: response.data.next,
 	                    previous: response.data.previous,
-	                    pageSize: 5,
-	                    total: Math.round(response.data.count / 5)
+	                    pageSize: 6,
+	                    total: Math.round(response.data.count / 6)
 	                }
 	                this.pagination = pagination
 	            })
@@ -125,5 +153,13 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+.pagination{
+	margin-top: 200px;
+}
+.md-dialog {
+    max-width: 768px;
+  }
+  #gg{
+  	background-color: white;
+  }
 </style>

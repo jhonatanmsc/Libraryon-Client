@@ -3,12 +3,18 @@
     <nav>
         <div class="nav-wrapper green">
             <div class="container">
-                <router-link to="home">Libraryon</router-link>
+                <router-link :to="{name: 'home'}">Libraryon</router-link>
                 <ul  class="right hide-on-med-and-down">
-                    <li v-if="authenticated"><a @click="logout()" href="#">
-                        <i class="material-icons left">sentiment_very_satisfied</i> Logout</a></li>
-                    <li v-else><a href="/login" >
-                      <i class="material-icons left">sentiment_very_satisfied</i> Login</a></li>
+                    <li v-if="authenticated">
+                      <a @click="logout()" href="/">
+                        <i class="material-icons left">sentiment_very_satisfied</i> Logout
+                      </a>
+                    </li>
+                    <li v-else>
+                      <router-link :to="{name: 'login'}" >
+                        <i class="material-icons left">sentiment_very_satisfied</i> Login
+                      </router-link>
+                    </li>
                 </ul>
             </div>
         </div>

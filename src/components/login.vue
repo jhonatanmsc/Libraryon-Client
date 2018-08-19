@@ -37,8 +37,8 @@ export default {
   },
   methods: {
   	logar: function() {
-		this.$store.dispatch('obtainToken', {username: this.username, password: this.password});
-		this.$router.push('/');
+		    this.$store.dispatch('obtainToken', {username: this.username, password: this.password});
+		    this.$router.push('/');
   		}
   	}
   }
