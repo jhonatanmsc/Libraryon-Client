@@ -29,7 +29,7 @@
 			 <h3 > Você tem certeza que quer deletar o item?</h3>
 			 <div class="center">
 				<a @click="active = false" class="waves-effect blue-grey lighten-5 black-text btn-large">CANCELAR</a>
-				<a @click="deleteBook()" class="waves-effect red darken-4 btn-large" style="margin-left: 20px;">DELETAR</a>
+				<a @click="active = false;deleteBook()" class="waves-effect red darken-4 btn-large" style="margin-left: 20px;">DELETAR</a>
 			 </div>
 			</div>
 		</div>
@@ -80,22 +80,11 @@ export default {
 
 		deleteModalActivate: function(book) {
 			this.bookUrl = book;
-			this.contentDeleteModal = ''
-				
 			this.active = true;
 		},
 
 		editModalActivate: function(book) {
 			this.bookUrl = book;
-			this.contentEditModal = `
-				<h2>Editando Livro</h2>
-	            <input width="100%" v-model="book.title"><br>
-	            <textarea v-model="book.description" rows="5" cols=100></textarea><br>
-	            <p class="user">{{ book.title }}</p>
-	            <div>
-	                <button @click="confirmUpdate(book)">Atualizar</button>
-	                <button @click="cancelEditing(book)">Cancelar</button>
-	            </div>`
 			this.active = true;
 		},
 
