@@ -1,93 +1,106 @@
 <template>
   <div class="home">
-    <div class="container row">
-        <div v-for="book in books" class="col m4 s12" v-if="!book.editing">
-            <h4><b>Título:</b> {{ book.title }}</h4>
-
-            <p class="body"><b>Descrição:</b> {{ book.description }}</p>
-            <div>
-                <button class="excluir red waves-effect waves-light btn" :disabled="disabled" @click="modalActivate(book)">
-                    <i class="material-icons left">close</i>Excluir
-                </button>
-                <button class="editar waves-effect waves-light btn" :disabled="disabled" @click="editBook(book)">
-                    <i class="material-icons left">cloud</i>Editar
-                </button>
-            </div>
-
-        </div>
-        <div v-else>
-            <h2>Editando Livro</h2>
-            <input width="100%" v-model="book.title"><br>
-            <textarea v-model="book.description" rows="5" cols=100></textarea><br>
-            <p class="user">{{ book.title }}</p>
-            <div>
-                <button @click="confirmUpdate(book)">Atualizar</button>
-                <button @click="cancelEditing(book)">Cancelar</button>
-            </div>
-        </div>
-    <div>
-    <div>
-    <md-dialog-confirm id="gg"
-      :md-active.sync="active"
-      md-title='Você deseja realmente deletar o livro?'
-      :md-content="bookName"
-      md-confirm-text="Deletar"
-      md-cancel-text="Cancelar"
-      @md-cancel="onCancel"
-      @md-confirm="onConfirm" />
-    </div>
-</div>
-</div>
-	<div class="pagination center">
-        <button class="waves-effect waves-light btn" @click="getBooks(pagination.previous)"
+  	<div class="m-content row valign-wrapper">
+  		<button class="m-btn waves-effect waves-light btn-large col m2" @click="getBooks(pagination.previous)"
                 :disabled="!pagination.previous">
-            <i class="material-icons left">chevron_left</i>Previous
+            <i class="material-icons left">chevron_left</i>
         </button>
-        <button class="waves-effect waves-light btn" @click="getBooks(pagination.next)" :disabled="!pagination.next">
-            <i class="material-icons left">chevron_right</i>Next
+
+        <div class="row col m8">
+	        <div v-for="book in books" class="col m4 s12 center" v-if="!book.editing">
+	            <h4><b class="red-text text-darken-4">{{ book.title }}</b></h4>
+
+	            <img :src="book.thumb" class="book-img"/>
+	            <div>
+	                <button class="excluir red waves-effect waves-light btn" :disabled="disabled" @click="deleteModalActivate(book)">
+	                    <i class="material-icons left">close</i>Excluir
+	                </button>
+	                <button class="editar waves-effect waves-light btn" :disabled="disabled" @click="editBook(book)">
+	                    <i class="material-icons left">cloud</i>Editar
+	                </button>
+	            </div>
+
+	        </div>
+	        <div v-else>
+	            
+	        </div>
+    		<div>
+			    <md-dialog-confirm id="delete-modal"
+			      :md-active.sync="active"
+			      :md-content="contentDeleteModal"
+			      md-confirm-text="Deletar"
+			      md-cancel-text="Cancelar"
+			      @md-cancel="onCancel"
+			      @md-confirm="onConfirm" />
+    		</div>
+		</div>
+
+		<button class="m-btn waves-effect waves-light btn-large col m2" @click="getBooks(pagination.next)" :disabled="!pagination.next">
+            <i class="material-icons left">chevron_right</i>
         </button>
-    </div>
+
+  	</div>
+    
 </div>
 </template>
 
 <script>
 export default {
-  name: 'home',
-  data () {
-    return {
-      disabled: true,
-      bookName: '',
-      active: false,
-      books: [],
-        pagination: {
-            count: 0,
-            next: '',
-            previous: ''
-        }
-    }
-  },
-  mounted(){
-  	this.getBooks('http://localhost/books');
-    $('.modal').modal();
-  },
-  updated() {
-	    this.$store.dispatch('inspectToken');
-	  	if(localStorage.getItem('token_access')){
-	  		this.disabled = false;
-	  	}
-	},
+  	name: 'home',
+  	data () {
+    	return {
+      	disabled: true,
+      	contentDeleteModal: '',
+      	contentEditModal: '',
+      	active: false,
+      	books: [],
+        	pagination: {
+            	count: 0,
+            	next: '',
+            	previous: ''
+        	}
+    	}
+  	},
+ 	 mounted(){
+  		this.getBooks('http://localhost/books');
+  	},
+  	updated() {
+    	this.$store.dispatch('inspectToken');
+  		if(localStorage.getItem('token_access')){
+  			this.disabled = false;
+  		}
+   	},
 	methods: {
 
 		onConfirm () {
-        this.value = 'Agreed'
-      },
-      onCancel () {
-        this.value = 'Disagreed'
-      },
+        	this.value = 'Agreed'
+      	},
+      	onCancel () {
+        	this.value = 'Disagreed'
+      	},
 
-		modalActivate: function(book) {
+		deleteModalActivate: function(book) {
 			this.bookUrl = book;
-			this.bookName = '<h2 class="red-text text-darken-4 center">'+book.title+'</h2>';
+			this.contentDeleteModal = `
+				<b style="font-size: 1.7em;"> Você tem certeza que quer deletar o item
+					<label style="font-size: 1em;" class="red-text text-darken-4 center">`+
+						book.title+
+					`</label> ?
+				</b>`
+			this.active = true;
+		},
+
+		editModalActivate: function(book) {
+			this.bookUrl = book;
+			this.contentEditModal = `
+				<h2>Editando Livro</h2>
+	            <input width="100%" v-model="book.title"><br>
+	            <textarea v-model="book.description" rows="5" cols=100></textarea><br>
+	            <p class="user">{{ book.title }}</p>
+	            <div>
+	                <button @click="confirmUpdate(book)">Atualizar</button>
+	                <button @click="cancelEditing(book)">Cancelar</button>
+	            </div>`
 			this.active = true;
 		},
 
@@ -159,7 +172,18 @@ export default {
 .md-dialog {
     max-width: 768px;
   }
-  #gg{
-  	background-color: white;
-  }
+#delete-modal{
+	background-color: white;
+}
+.book-img{
+	width: 50%;
+	height: 50%;
+}
+.m-content{
+	margin-left: 40px;
+	margin-right: 40px;
+}
+.m-btn{
+	width: 60px !important;
+}
 </style>
