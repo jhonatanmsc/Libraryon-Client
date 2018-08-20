@@ -1,114 +1,97 @@
 <template>
-  <div class="home container">
-    <div class="container row" v-for="book in books">
-        <div class="col s12" v-if="!book.editing">
-            <h4><b>Título:</b> {{ book.title }}</h4>
+  <div class="rate">
+  	<div class="m-content row valign-wrapper">
+  		<button v-if="!active" class="m-btn waves-effect waves-light btn-large col m2" @click="getBooks(pagination.previous)"
+                :disabled="!pagination.previous">
+            <i class="material-icons left">chevron_left</i>
+        </button>
+        <div class="row col m8">
+	        <div v-for="book in books" class="col m4 s12 center" v-if="!book.editing">
+	            <h4><b class="red-text text-darken-4">{{ book.title }}</b></h4>
 
-            <p class="body"><b>Descrição:</b> {{ book.description }}</p>
+	            <img :src="book.thumb" class="book-img"/>
+	            <div>
+					<button class="editar waves-effect waves-light btn" :disabled="disabled" @click="editBook(book)">
+						<i class="material-icons left">cloud</i>Avaliar
+					</button>
+	            </div>
 
-			<button class="editar waves-effect waves-light btn col s4" :disabled="disabled" @click="editBook(book)">
-				<i class="material-icons left">cloud</i>Editar
-			</button>
-			<button class="excluir red waves-effect waves-light btn col s4" :disabled="disabled" @click="deleteBook(book)">
-				<i class="material-icons left">close</i>Excluir
-			</button>
-        </div>
-
-		<div v-else>
-            <h2>Avaliar Livro</h2>
-            <h4><b>Título:</b> {{ book.title }}</h4>
-			<div class="row">
-				<div class="col s12">
-					Nota:
-					<div class="input-field inline">
-						<input id="qtd_inline" v-model="score.score" type="number" class="validate">
-						<label for="qtd_inline">nota do livro</label>
+	        </div>
+	        <div v-else>
+				<h2>Avaliar Livro</h2>
+				<h4><b>Título:</b> {{ book.title }}</h4>
+				<div class="row">
+					<div class="col s12">
+						Nota:
+						<div class="input-field inline">
+							<input id="qtd_inline" v-model="score.score" type="number" class="validate">
+							<label for="qtd_inline">nota do livro</label>
+						</div>
+					</div>
+					<div class="col s12">
+						<div class="input-field col s12">
+							<textarea id="textarea1" v-model="score.comment" class="materialize-textarea"></textarea>
+							<label for="textarea1">Comentários</label>
+						</div>
 					</div>
 				</div>
-			</div>
-            <div>
-                <button class="editar waves-effect waves-light btn col s4" @click="rateBook(book)">
-					<i class="material-icons left">cloud</i>Confirmar Voto</button>
-                <button class="excluir red waves-effect waves-light btn col s4" @click="cancelEditing(book)">
-					<i class="material-icons left">close</i>Cancelar</button>
-            </div>
-        </div>
-        <!--div v-else>
-            <h2>Avaliar Livro</h2>
-            <input width="100%" v-model="book.title"><br>
-            <textarea v-model="book.description" rows="5" cols=100></textarea><br>
-            <p class="user">{{ book.title }}</p>
-            <div>
-                <button @click="confirmUpdate(book)">Atualizar</button>
-                <button @click="cancelEditing(book)">Cancelar</button>
-            </div>
-        </div-->
+				<div>
+					<button class="editar waves-effect waves-light btn col s4" @click="rateBook(book)">
+						<i class="material-icons left">cloud</i>Confirmar Voto</button>
+					<button class="excluir red waves-effect waves-light btn col s4" @click="cancelEditing(book)">
+						<i class="material-icons left">close</i>Cancelar</button>
+				</div>
+	        </div>
+		</div>
 
-    </div>
+		<button class="m-btn waves-effect waves-light btn-large col m2" @click="getBooks(pagination.next)" :disabled="!pagination.next">
+            <i class="material-icons left">chevron_right</i>
+        </button>
 
-    <div class="pagination">
-        <button class="waves-effect waves-light btn" @click="getBooks(pagination.previous)"
-                :disabled="!pagination.previous">
-            <i class="material-icons left">chevron_left</i>Previous
-        </button>
-        <button class="waves-effect waves-light btn" @click="getBooks(pagination.next)" :disabled="!pagination.next">
-            <i class="material-icons left">chevron_right</i>Next
-        </button>
-    </div>
-  </div> 
+  	</div>
+    
+</div>
 </template>
 
 <script>
 export default {
-  name: 'rate',
-  data () {
-    return {
-      disabled: true,
-      books: [],
-        pagination: {
-            count: 0,
-            next: '',
-            previous: ''
-		},
-		score: {
+  	name: 'rate',
+  	data () {
+    	return {
+      	disabled: true,
+      	contentDeleteModal: '',
+      	contentEditModal: '',
+      	active: false,
+      	books: [],
+        	pagination: {
+            	count: 0,
+            	next: '',
+            	previous: ''
+			},
+			score: {
 			'score': 0,
-		}
-    }
-  },
-  mounted() {
-	    this.getBooks('http://localhost/books');
-	    this.$store.dispatch('inspectToken');
-        console.log('mounted')
-	  	if(localStorage.getItem('token_access')){
-	  		this.disabled = false;
-	  	}
-	},
+			'book': '',
+			'lector': 1,
+			'comment': ""
+			}
+    	}
+  	},
+ 	 mounted(){
+  		this.getBooks('http://localhost/books');
+  	},
+  	updated() {
+    	this.$store.dispatch('inspectToken');
+  		if(localStorage.getItem('token_access')){
+  			this.disabled = false;
+  		}
+   	},
 	methods: {
-	    deleteBook: function (book) {
-	        var index = this.books.indexOf(book)
-	        this.books.splice(index)
-	    },
 
-	    deleteBook: function (book) {
-	        var index = this.books.indexOf(book)
-
-	        this.$http.delete('http://localhost/books/' + book.id + '/')
-	            .then(response => {
-	                this.books.splice(index, 1)
-	            })
-	            .catch(e => {
-	                console.log(e)
-	            })
-	    },
-		
 		rateBook: function(book) {
-			var score = {};
-			score.book = this.book;
-			score.lector = 1;
-			score.score = 8.0;
-			score.comment = "Algo";
+			console.log("Foooooooooi ", book.url);
+			this.score.book = book.url;
 
-        	this.$http.post('http://localhost/scores/create/', score)
+        	this.$http.post('http://localhost/scores/create/', this.score)
             .then(response => {
                 this.response = response
                 this.errors = ''
@@ -118,22 +101,11 @@ export default {
 		  })
 		},
 
-		editBook: function (book) {
+	    editBook: function (book) {
 	        book.editing = true
-		},
-
-	    cancelEditing: function (book) {
-	        book.editing = false
 	    },
 
-	    confirmUpdate: function (book) {
-	        this.$http.put('http://localhost/books/' + book.id, book)
-	            .then(response => {
-
-	            })
-	            .catch(e => {
-	                console.log(e)
-	            })
+	    cancelEditing: function (book) {
 	        book.editing = false
 	    },
 
@@ -150,8 +122,8 @@ export default {
 	                    count: response.data.count,
 	                    next: response.data.next,
 	                    previous: response.data.previous,
-	                    pageSize: 5,
-	                    total: Math.round(response.data.count / 5)
+	                    pageSize: 6,
+	                    total: Math.round(response.data.count / 6)
 	                }
 	                this.pagination = pagination
 	            })
@@ -164,5 +136,24 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+.pagination{
+	margin-top: 200px;
+}
+.md-dialog {
+    max-width: 768px;
+  }
+#delete-modal{
+	background-color: white;
+}
+.book-img{
+	width: 50%;
+	height: 50%;
+}
+.m-content{
+	margin-left: 40px;
+	margin-right: 40px;
+}
+.m-btn{
+	width: 60px !important;
+}
 </style>
