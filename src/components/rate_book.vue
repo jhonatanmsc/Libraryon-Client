@@ -14,6 +14,9 @@
 					<button class="editar waves-effect waves-light btn" :disabled="disabled" @click="editBook(book)">
 						<i class="material-icons left">cloud</i>Avaliar
 					</button>
+					<button class="editar waves-effect waves-light btn blue white-text" :disabled="disabled" @click="editBook(book)">
+						<i class="material-icons left">cloud</i>Adicionar a favoritos
+					</button>
 	            </div>
 
 	        </div>
@@ -71,8 +74,8 @@ export default {
 			score: {
 			'score': 0,
 			'book': '',
-			'lector': 1,
-			'comment': ""
+			'lector': '',
+			'comment': ''
 			}
     	}
   	},
@@ -88,10 +91,10 @@ export default {
 	methods: {
 
 		rateBook: function(book) {
-			console.log("Foooooooooi ", book.url);
 			this.score.book = book.url;
-
-        	this.$http.post('http://localhost/scores/create/', this.score)
+			this.score.lector = 1;
+			this.$router.push('/')
+			this.$http.post('http://localhost/new-scores/', this.score)
             .then(response => {
                 this.response = response
                 this.errors = ''

@@ -7,6 +7,21 @@
                 <ul  class="right hide-on-med-and-down">
                     <li>
                     <li v-if="authenticated">
+                      <router-link :to="{name: 'avaliar'}" >
+                        <i class="material-icons left">library_books</i> Lista de Livros
+                      </router-link>
+                    </li>
+                    <li v-if="authenticated">
+                      <router-link :to="{name: 'favoritos'}" >
+                        <i class="material-icons left">favorite</i> Livros Favoritos
+                      </router-link>
+                    </li>
+                    <li>
+                      <router-link :to="{name: 'generos'}" >
+                          <i class="material-icons left">book</i> Gêneros
+                      </router-link>
+                    </li>
+                    <li v-if="authenticated">
                       <a @click="logout()" href="/">
                         <i class="material-icons left">sentiment_very_satisfied</i> Logout
                       </a>
