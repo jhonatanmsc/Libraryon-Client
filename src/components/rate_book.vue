@@ -80,10 +80,9 @@ export default {
     	}
   	},
  	 mounted(){
-  		this.getBooks('http://localhost/books');
+  		this.getBooks('http://localhost:8000/books');
   	},
   	updated() {
-    	this.$store.dispatch('inspectToken');
   		if(localStorage.getItem('token_access')){
   			this.disabled = false;
   		}
@@ -94,7 +93,7 @@ export default {
 			this.score.book = book.url;
 			this.score.lector = 1;
 			this.$router.push('/')
-			this.$http.post('http://localhost/new-scores/', this.score)
+			this.$http.post('http://localhost:8000/new-scores/', this.score)
             .then(response => {
                 this.response = response
                 this.errors = ''

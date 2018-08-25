@@ -15,80 +15,49 @@ Vue.use(M);
 Vue.config.productionTip = false
 
 Vue.use(Vuex);
-//Vue.use(VueAxios, axios);
-//		Setando regras do login com token JWT
+
 const store = new Vuex.Store({
   state: {
-    jwt: localStorage.getItem('token_access'),
-    jwt_refresh: localStorage.getItem('token_refresh'),
+    customToken: localStorage.getItem('token'),
+    user: '',
+    tipo: '',
     endpoints: {
-      obtainJWT: 'http://localhost/api/token/jwt/',
-      refreshJWT: 'http://localhost/api/token/jwt/refresh/',
+      obtainCustomToken: 'http://localhost:8000/api/token/custom',
     }
   },
   mutations: {
     updateToken(state, newToken) {
-      localStorage.setItem('token_access', newToken);
-      state.jwt = newToken;
+      localStorage.setItem('token', newToken);
+      state.customToken = newToken;
     },
     removeToken(state) {
-      localStorage.removeItem('token_access');
-      localStorage.removeItem('token_refresh');
-      state.jwt = null;
-      state.jwt_refresh = null;
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('tipo');
+      localStorage.removeItem('nome');
+      state.customToken = null;
     }
   },
   actions: {
-    setUser(context, type){
-      console.log(type.type);
-      localStorage.setItem('type', type.type)
-    },
     obtainToken(context, payload) {
-      axios.post(this.state.endpoints.obtainJWT, payload)
+      axios.post(this.state.endpoints.obtainCustomToken, payload)
         .then(response => {
-          let accessToken = response.data.access
-          let refreshToken = response.data.refresh
-          this.state.jwt = accessToken
-          localStorage.setItem('token_access', accessToken)
-          localStorage.setItem('token_refresh', refreshToken)
-          this.commit('updateToken', accessToken);
+          let mCustomToken = response.data.token;
+          let mUser = response.data.user_id;
+          let mType = response.data.user_type;
+          let name = response.data.user_name;
+          this.state.customToken = mCustomToken;
+          this.state.user = mUser;
+          this.state.tipo = mType;
+          localStorage.setItem('token', mCustomToken);
+          localStorage.setItem('user', mUser);
+          localStorage.setItem('tipo', mType);
+          localStorage.setItem('nome', name);
         })
         .catch(error => {
           console.log(error);
         })
     },
-    refreshToken(context) {
-      const payload = {
-        refresh: this.state.jwt_refresh
-      }
-
-      axios.post(this.state.endpoints.refreshJWT, payload)
-        .then((response) => {
-          this.commit('updateToken', response.data.access)
-        })
-        .catch((error) => {
-          console.log(error)
-        })
-    },
-    inspectToken(context) {
-      const token = this.state.jwt;
-      let isAuthenticated = false
-      if (token) {
-        const decoded = jwt_decode(token);
-        const exp = decoded.exp;
-        // SE está expirando em 30 min (1800 segs) E não está atingindo sua vida útil (24hrs - 30 min)
-        // => REFRESH
-        // SE está expirando em 30 min E está atingindo sua vida útil 
-        // => NÃO ATUALIZAR 
-        console.log((Date.now() / 1000) - exp)
-        if ((Date.now() / 1000) - exp == 0) {
-          this.dispatch('refreshToken')
-        }
-      } else {
-        console.log('TOKEN NOT OK');
-        this.commit('removeToken');
-      }
-    }
   }
 });
 

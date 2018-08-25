@@ -72,7 +72,7 @@ export default {
     },
 methods: {
     newLector: function() {
-        this.$http.post('http://localhost/lectors/create/', this.new_user)
+        this.$http.post('http://localhost:8000/authors/create/', this.new_user)
             .then(response => {
                 this.response = response
                 this.errors = ''

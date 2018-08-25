@@ -97,13 +97,12 @@ export default {
     	}
   	},
  	 mounted(){
-  		this.getBooks('http://localhost/genres/');
+  		this.getBooks('http://localhost:8000/genres/');
   		if(localStorage.getItem('type') == 'autor'){
   			this.forAutor = true;
   		}
   	},
   	updated() {
-    	this.$store.dispatch('inspectToken');
   		if(localStorage.getItem('token_access')){
   			this.disabled = false;
   		}

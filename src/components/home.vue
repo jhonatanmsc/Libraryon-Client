@@ -1,36 +1,68 @@
 <template>
   <div class="home">
+    <div v-if="forAutor">
+        <h4 class="green-text center text-darken-4"><b>Livros de sua publicação</b></h4>
+    </div>
+    <div v-else>
+        <h4 class="green-text center text-darken-4"><b>Livros favoritos</b></h4>
+    </div>
+
   	<div class="m-content row valign-wrapper">
-  		<button v-if="!activeDelete && !activeEdit" class="m-btn waves-effect waves-light btn-large col m2" @click="getBooks(pagination.previous)"
+  		<button v-if="!activeDelete && !activeEdit && !activeAvalue" class="m-btn waves-effect waves-light btn-large col m2" @click="getBooks(pagination.previous)"
                 :disabled="!pagination.previous">
             <i class="material-icons left">chevron_left</i>
         </button>
 
         <div class="row col m8">
-	        <div v-for="book in books" class="col m4 s12 center" v-if="!activeDelete && !activeEdit">
+	        <div v-for="book in books" class="col m4 s12 center" v-if="!activeDelete && !activeEdit && !activeAvalue">
+
 	            <h4><b class="red-text text-darken-4">{{ book.title }}</b></h4>
 
-	            <img :src="book.thumb" class="book-img"/>
-
-				<div v-if="!forAutor">
-	                <button data-target="modal1" class="excluir red waves-effect waves-light btn modal-trigger" :disabled="disabled" @click="deleteModalActivate(book)">
-	                    <i class="material-icons left">close</i>Votar
+	            <!--<img :src="book.thumb" class="book-img"/>-->
+	            <p>{{ book.description }}</p>
+				
+				<div v-if="!isAdmin()">
+	                <button data-target="modal1" :disabled='disabled'  class="excluir purple waves-effect waves-light btn modal-trigger" @click="avalModalActivate(book)">
+	                    <i class="material-icons left">star_border</i>Fazer review
 	                </button>
 	            </div>
 
-	            <div v-if="forAutor">
-	                <button data-target="modal1" class="excluir red waves-effect waves-light btn modal-trigger" :disabled="disabled" @click="deleteModalActivate(book)">
+	            <div v-if="isAdmin()">
+	                <button data-target="modal1"  class="excluir red waves-effect waves-light btn modal-trigger" @click="deleteModalActivate(book)">
 	                    <i class="material-icons left">close</i>Excluir
 	                </button>
-	                <button class="editar waves-effect waves-light btn" :disabled="disabled" @click="editModalActivate(book)">
+	                <button class="editar waves-effect waves-light btn" @click="editModalActivate(book)">
 	                    <i class="material-icons left">cloud</i>Editar
 	                </button>
 	            </div>
 
 	        </div>
-	        <div v-else>
-	            
+	        <div v-if="activeAvalue">
+				<h2>Avaliar Livro</h2>
+				<h4><b>Título:</b> {{ book.title }}</h4>
+				<div class="row">
+					<div class="col s12">
+						Nota:
+						<div class="input-field inline">
+							<input id="qtd_inline" v-model="score.score" type="number" class="validate">
+							<label for="qtd_inline">nota do livro</label>
+						</div>
+					</div>
+					<div class="col s12">
+						<div class="input-field col s12">
+							<textarea id="textarea1" v-model="score.comment" class="materialize-textarea"></textarea>
+							<label for="textarea1">Comentários</label>
+						</div>
+					</div>
+				</div>
+				<div>
+					<button class="editar waves-effect waves-light btn col s4" @click="activeAvalue=false;rateBook()">
+						<i class="material-icons left">cloud</i>Confirmar Voto</button>
+					<button class="excluir red waves-effect waves-light btn col s4" @click="activeAvalue=false;cancelEditing(book)">
+						<i class="material-icons left">close</i>Cancelar</button>
+				</div>
 	        </div>
+		</div>
     		<!-- Modal Structure -->
     		<div v-if="activeDelete" style="height: 100vh; padding-top: 100px;">
 			 <h3 > Você tem certeza que quer deletar o item?</h3>
@@ -68,9 +100,8 @@
 				<a @click="activeEdit = false;editBook()" class="waves-effect red darken-4 btn-large" style="margin-left: 20px;">ATUALIZAR</a>
 			 </div>
 			</div>
-		</div>
 
-		<button v-if="!activeDelete && !activeEdit" class="m-btn waves-effect waves-light btn-large col m2" @click="getBooks(pagination.next)" :disabled="!pagination.next">
+		<button v-if="!activeDelete && !activeEdit && !activeAvalue" class="m-btn waves-effect waves-light btn-large col m2" @click="getBooks(pagination.next)" :disabled="!pagination.next">
             <i class="material-icons left">chevron_right</i>
         </button>
 
@@ -89,8 +120,16 @@ export default {
       	contentEditModal: '',
       	activeDelete: false,
       	activeEdit: false,
+      	activeAvalue: false,
       	forAutor: false,
+      	avalueble: false,
       	book: '',
+      	score: {
+			'score': 0,
+			'book': '',
+			'lector': '',
+			'comment': ''
+			},
       	books: [],
         	pagination: {
             	count: 0,
@@ -100,25 +139,26 @@ export default {
     	}
   	},
  	 mounted(){
-  		this.getBooks('http://localhost/books');
-  		if(localStorage.getItem('type') == 'autor'){
-  			this.forAutor = true;
-  		}
+  		this.getBooks('http://localhost:8000/books');
   	},
   	updated() {
-    	this.$store.dispatch('inspectToken');
-  		if(localStorage.getItem('token_access')){
+  		if(localStorage.getItem('token')){
   			this.disabled = false;
   		}
    	},
 	methods: {
 
-		onConfirm () {
-        	this.value = 'Agreed'
-      	},
-      	onCancel () {
-        	this.value = 'Disagreed'
-      	},
+		isAdmin: function(){
+   			if(localStorage.getItem('tipo') == 'admin'){
+   				return true;
+   			}
+   			return false;
+   		},
+
+   		avalModalActivate: function(book){
+   			this.book = book;
+   			this.activeAvalue = true;
+   		},
 
 		deleteModalActivate: function(book) {
 			this.book = book;
@@ -128,6 +168,20 @@ export default {
 		editModalActivate: function(book) {
 			this.book = book;
 			this.activeEdit = true;
+		},
+
+   		rateBook: function() {
+			this.score.book = this.book.url;
+			this.score.lector = localStorage.getItem('user');
+			this.$router.push('/');
+			this.$http.post('http://localhost:8000/scores/create/', this.score)
+            .then(response => {
+                this.response = response;
+                this.errors = '';
+            })
+            .catch(response => {
+  			console.log(response);
+		  })
 		},
 
 	    deleteBook: function () {
